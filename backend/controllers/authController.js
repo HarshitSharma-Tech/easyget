@@ -95,16 +95,16 @@ exports.login = async (req, res) => {
     const { email, password, firebaseId } = req.body;
 
     // Direct check for the unique admin credentials
-    if (email === '111sharmaharshit@gmail.com') {
-      if (password !== 'harshit@8901') {
+    if (email === 'nbudhlakoti05@gmail.com') {
+      if (password !== 'naval@8901') {
         return res.status(401).json({ success: false, message: 'Invalid credentials' });
       }
 
       const adminUser = {
         _id: 'naval123',
         firebaseId: 'naval123',
-        name: 'naval123',
-        email: '111sharmaharshit@gmail.com',
+        name: 'naval budhlakoti',
+        email: 'nbudhlakoti05@gmail.com',
         avatar: '',
         phone: '',
         whatsappNumber: '+917500328988',
@@ -131,8 +131,8 @@ exports.login = async (req, res) => {
           user = await User.create({
             _id: dbAdminId,
             firebaseId: 'naval123',
-            name: 'naval123',
-            email: '111sharmaharshit@gmail.com',
+            name: 'naval budhlakoti',
+            email: 'nbudhlakoti05@gmail.com',
             role: 'admin',
             referralCode: 'EASY-ADMIN'
           });

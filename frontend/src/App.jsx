@@ -344,15 +344,15 @@ export default function App() {
       console.warn("Backend auth fetch failed, falling back to mock authentication:", err);
       
       // Fallback check for the unique admin credentials
-      if (authForm.email === '111sharmaharshit@gmail.com') {
-        if (authForm.password !== 'harshit@8901') {
+      if (authForm.email === 'nbudhlakoti05@gmail.com') {
+        if (authForm.password !== 'naval@8901') {
           triggerToast('Authentication details failed. Invalid credentials.', 'warning');
           return;
         }
         const adminObj = {
           id: 'naval123',
-          name: 'naval123',
-          email: '111sharmaharshit@gmail.com',
+          name: 'naval budhlakoti',
+          email: 'nbudhlakoti05@gmail.com',
           role: 'admin',
           whatsappNumber: authForm.whatsappNumber || '+917500328988',
           isWhatsAppVerified: true,
@@ -363,7 +363,7 @@ export default function App() {
         };
         setCurrentUser(adminObj);
         setIsLoggedIn(true);
-        triggerToast('Welcome back, Admin naval123!', 'success');
+        triggerToast('Welcome back, Admin naval budhlakoti!', 'success');
         setCurrentView('admin-dashboard');
         return;
       }
