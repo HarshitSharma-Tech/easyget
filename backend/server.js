@@ -75,29 +75,18 @@ const MONGO_URI = process.env.MONGO_URI;
 mongoose.set('bufferCommands', false);
 
 if (!MONGO_URI) {
-  console.warn('\n⚠️ WARNING: MONGO_URI environment variable is missing.');
-  console.warn('GetEasy Server will run with local mock memory support for developer demonstration.\n');
-  global.dbOffline = true;
-  
-  // Start server directly in offline/mock mode
-  app.listen(PORT, () => {
-    console.log(`🚀 GetEasy Server listening on PORT ${PORT} (Offline/Mock Mode)`);
-  });
-} else {
-  mongoose.connect(MONGO_URI)
-    .then(() => {
-      console.log('✅ Connected to MongoDB Database');
-      global.dbOffline = false;
-      app.listen(PORT, () => {
-        console.log(`🚀 GetEasy Server listening on PORT ${PORT}`);
-      });
-    })
-    .catch((err) => {
-      console.error('❌ Database connection failed. Error:', err.message);
-      console.log('Starting server in offline/mock mode due to database connection failure.');
-      global.dbOffline = true;
-      app.listen(PORT, () => {
-        console.log(`🚀 GetEasy Server listening on PORT ${PORT} (Offline/Mock Mode)`);
-      });
-    });
+  console.error('\n⚠️ FATAL ERROR: MONGO_URI environment variable is missing.');
+  process.exit(1);
 }
+
+mongoose.connect(MONGO_URI)
+  .then(() => {
+    console.log('✅ Connected to MongoDB Database');
+    app.listen(PORT, () => {
+      console.log(`🚀 GetEasy Server listening on PORT ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('❌ Database connection failed. Error:', err.message);
+    process.exit(1);
+  });

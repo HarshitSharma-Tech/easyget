@@ -14,31 +14,6 @@ exports.register = async (req, res) => {
   try {
     const { firebaseId, name, email, password, avatar, phone, whatsappNumber, isWhatsAppBusiness, preferredContactMethod, referralCode } = req.body;
 
-    if (global.dbOffline) {
-      const mockUser = {
-        _id: 'mock-user-' + Math.random().toString(36).substring(2, 10),
-        firebaseId: firebaseId || `fb-${Date.now()}`,
-        name: name || email.split('@')[0],
-        email,
-        avatar: avatar || '',
-        phone: phone || '',
-        whatsappNumber: whatsappNumber || phone || '',
-        isWhatsAppBusiness: isWhatsAppBusiness || false,
-        preferredContactMethod: preferredContactMethod || 'WhatsApp',
-        role: (req.body.role === 'seller') ? 'seller' : 'buyer',
-        referralCode: `EASY-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-        referredBy: referralCode || null,
-        isWhatsAppVerified: true,
-        cart: [],
-        wishlist: []
-      };
-      return res.status(201).json({
-        success: true,
-        token: generateToken(mockUser._id),
-        user: mockUser
-      });
-    }
-
     let user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ success: false, message: 'User already exists' });
@@ -74,13 +49,11 @@ exports.register = async (req, res) => {
     });
 
     try {
-      if (!global.dbOffline) {
-        await sendEmail({
-          email: user.email,
-          subject: 'GetEasy Verification Code',
-          message: `Your verification code is: ${otp}. It expires in 10 minutes.`
-        });
-      }
+      await sendEmail({
+        email: user.email,
+        subject: 'GetEasy Verification Code',
+        message: `Your verification code is: ${otp}. It expires in 10 minutes.`
+      });
     } catch (err) {
       console.error('Email could not be sent', err);
       // We don't fail registration if email fails, but we might want to flag it in real apps.
@@ -124,13 +97,6 @@ exports.login = async (req, res) => {
         wishlist: []
       };
 
-      if (global.dbOffline) {
-        return res.status(200).json({
-          success: true,
-          token: generateToken(adminUser._id),
-          user: adminUser
-        });
-      } else {
         // If MongoDB is online, find or create the admin user with a valid hex ID, while keeping firebaseId as 'naval123'
         const dbAdminId = '60c72b2f9b1d8b2badfa1123';
         let user = await User.findOne({ email });
@@ -152,31 +118,6 @@ exports.login = async (req, res) => {
           token: generateToken(user._id),
           user
         });
-      }
-    }
-
-    if (global.dbOffline) {
-      const mockUser = {
-        _id: email === 'admin@geteasy.com' ? '60c72b2f9b1d8b2badfa1115' : 'mock-user-' + Math.random().toString(36).substring(2, 10),
-        firebaseId: firebaseId || `fb-${Date.now()}`,
-        name: email.split('@')[0],
-        email,
-        avatar: '',
-        phone: '',
-        whatsappNumber: '+917500328988',
-        isWhatsAppBusiness: false,
-        preferredContactMethod: 'WhatsApp',
-        role: email === 'admin@geteasy.com' ? 'admin' : (email.includes('seller') ? 'seller' : 'buyer'),
-        referralCode: `EASY-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-        isWhatsAppVerified: true,
-        cart: [],
-        wishlist: []
-      };
-      return res.status(200).json({
-        success: true,
-        token: generateToken(mockUser._id),
-        user: mockUser
-      });
     }
 
     let user = await User.findOne({ email }).select('+password');
@@ -185,7 +126,7 @@ exports.login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
-    if (!user.isEmailVerified && !global.dbOffline) {
+    if (!user.isEmailVerified) {
       return res.status(401).json({ success: false, message: 'Please verify your email first', requiresOtp: true });
     }
 
@@ -209,9 +150,7 @@ exports.login = async (req, res) => {
 
 exports.getProfile = async (req, res) => {
   try {
-    if (global.dbOffline) {
-      return res.status(200).json({ success: true, user: req.user });
-    }
+
     const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
@@ -229,15 +168,7 @@ exports.updateProfile = async (req, res) => {
       'isWhatsAppBusiness', 'showWhatsAppPublicly', 'preferredContactMethod'
     ];
     
-    if (global.dbOffline) {
-      const user = { ...req.user };
-      fieldsToUpdate.forEach(field => {
-        if (req.body[field] !== undefined) {
-          user[field] = req.body[field];
-        }
-      });
-      return res.status(200).json({ success: true, user });
-    }
+
 
     const user = await User.findById(req.user._id);
     if (!user) {
@@ -267,14 +198,7 @@ exports.verifyWhatsApp = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid OTP format. Must be 6 digits.' });
     }
 
-    if (global.dbOffline) {
-      const user = { ...req.user, isWhatsAppVerified: true };
-      return res.status(200).json({ 
-        success: true, 
-        message: 'WhatsApp number verified successfully!', 
-        user 
-      });
-    }
+
 
     const user = await User.findById(req.user._id);
     if (!user) {
@@ -298,14 +222,7 @@ exports.verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
     
-    if (global.dbOffline) {
-      return res.status(200).json({
-        success: true,
-        message: 'Mock OTP verified',
-        token: generateToken('mock-user-123'),
-        user: { email, isEmailVerified: true, role: 'buyer' }
-      });
-    }
+
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -335,13 +252,7 @@ exports.googleLogin = async (req, res) => {
   try {
     const { credential } = req.body;
     
-    if (global.dbOffline) {
-       return res.status(200).json({
-        success: true,
-        token: generateToken('mock-google-user'),
-        user: { name: 'Google Mock User', email: 'mock@gmail.com', isEmailVerified: true, role: 'buyer' }
-      });
-    }
+
 
     const ticket = await googleClient.verifyIdToken({
       idToken: credential,
