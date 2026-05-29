@@ -44,6 +44,13 @@ exports.register = async (req, res) => {
       return res.status(400).json({ success: false, message: 'User already exists' });
     }
 
+    if (whatsappNumber && whatsappNumber.trim() !== '') {
+      let phoneUser = await User.findOne({ whatsappNumber });
+      if (phoneUser) {
+        return res.status(400).json({ success: false, message: 'This WhatsApp number is already registered to another account' });
+      }
+    }
+
     const uniqueReferral = `EASY-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
