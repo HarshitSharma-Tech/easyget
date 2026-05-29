@@ -295,7 +295,8 @@ export default function App() {
             password: authForm.password 
           };
       
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${API_BASE}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(bodyPayload)
@@ -392,7 +393,8 @@ export default function App() {
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/api/auth/verify-otp', {
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${API_BASE}/api/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: emailForOtp, otp })
@@ -418,7 +420,8 @@ export default function App() {
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/google-login', {
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${API_BASE}/api/auth/google-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ credential: credentialResponse.credential })
