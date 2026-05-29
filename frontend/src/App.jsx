@@ -802,7 +802,7 @@ export default function App() {
               </div>
               <h2 className="text-2xl font-black tracking-tight">GetEasy Recommerce</h2>
               <p className="text-xs text-slate-300">
-                {isRegistering ? 'Create your buyer, seller, or admin profile' : 'Sign in to buy and sell verified devices'}
+                {isRegistering ? 'Create your buyer or seller profile' : 'Sign in to buy and sell verified devices'}
               </p>
             </div>
 
