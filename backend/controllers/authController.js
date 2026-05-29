@@ -136,6 +136,9 @@ exports.login = async (req, res) => {
             role: 'admin',
             referralCode: 'EASY-ADMIN'
           });
+        } else if (user.role !== 'admin') {
+          user.role = 'admin';
+          await user.save();
         }
         return res.status(200).json({
           success: true,
