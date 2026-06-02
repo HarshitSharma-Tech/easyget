@@ -56,7 +56,9 @@ exports.register = async (req, res) => {
       });
     } catch (err) {
       console.error('Email could not be sent', err);
-      // We don't fail registration if email fails, but we might want to flag it in real apps.
+      // If email fails, delete the created user so they can try again and are not stuck in an unverified state
+      await User.findByIdAndDelete(user._id);
+      return res.status(500).json({ success: false, message: 'Failed to send OTP email. Please try again.' });
     }
 
     res.status(201).json({
